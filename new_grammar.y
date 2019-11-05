@@ -1,3 +1,13 @@
+%token 
+
+. DOT
+
+
+
+
+
+
+
 Program : { SimpleDeclaration | RoutineDeclaration }
 SimpleDeclaration
  : VariableDeclaration | TypeDeclaration
@@ -23,11 +33,25 @@ Body : { SimpleDeclaration | Statement }
 
 
 
-Statement : Assignment | RoutineCall
- | WhileLoop | ForLoop | /* ForeachLoop */
- | IfStatement
-Assignment : ModifiablePrimary := Expression
+Statement: 
+  Assignment 
+| RoutineCall
+| WhileLoop 
+| ForLoop 
+| /* ForeachLoop */
+| IfStatement
+;
+
+
+Assignment:
+  ModifiablePrimary := Expression
+
+
 RoutineCall : Identifier [ ( Expression { , Expression } ) ]
+
+
+
+
 WhileLoop : while Expression loop Body end
 ForLoop : for Identifier Range loop Body end
 Range : in [ reverse ] Expression .. Expression
@@ -38,10 +62,23 @@ Relation : Simple [ ( < | <= | > | >= | = | /= ) Simple ]
 Simple : Factor { ( * | / | % ) Factor }
 Factor : Summand { ( + | - ) Summand }
 Summand : Primary | ( Expression )
-8
-Primary : IntegralLiteral
- | RealLiteral
- | true | false
- | ModifiablePrimary
-ModifiablePrimary
- : Identifier { . Identifier | [ Expression ] }
+
+
+Primary : 
+  IntegralLiteral
+| RealLiteral
+| true 
+| false
+| ModifiablePrimary
+
+
+ModifiablePrimary: 
+  Identifier
+| DOT ModifiablePrimary1
+;
+  
+ModifiablePrimary1:
+   Identifier 
+| Expression 
+;
+
