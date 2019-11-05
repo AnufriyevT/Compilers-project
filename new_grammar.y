@@ -73,12 +73,13 @@ Primary :
 
 
 ModifiablePrimary: 
-  Identifier
-| DOT ModifiablePrimary1
+  Identifier ModifiablePrimary1
 ;
   
 ModifiablePrimary1:
-   Identifier 
-| Expression 
+  
+| DOT Identifier ModifiablePrimary1
+| DOT Expression ModifiablePrimary1
+| %empty
 ;
 
