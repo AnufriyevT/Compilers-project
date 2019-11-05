@@ -19,6 +19,10 @@ PrimitiveType: integer | real | boolean
 RecordType : record { VariableDeclaration } end
 ArrayType : array [ Expression ] Type
 Body : { SimpleDeclaration | Statement }
+
+
+
+
 Statement : Assignment | RoutineCall
  | WhileLoop | ForLoop | /* ForeachLoop */
  | IfStatement
@@ -27,14 +31,6 @@ RoutineCall : Identifier [ ( Expression { , Expression } ) ]
 WhileLoop : while Expression loop Body end
 ForLoop : for Identifier Range loop Body end
 Range : in [ reverse ] Expression .. Expression
-
-
-
-
-
-
-
-
 
 IfStatement : if Expression then Body [ else Body ] end
 Expression : Relation { ( and | or | xor ) Relation }
