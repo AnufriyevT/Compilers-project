@@ -1,2 +1,2 @@
 bison -d grammar.y
-gcc -lm grammar.tab.c -o iterative
+gcc grammar.tab.c -o iterative
