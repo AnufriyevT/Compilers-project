@@ -12,14 +12,13 @@
 %token PROC
 %token ADD
 %token SUB
-
+%token COL
 
 
 Program: 
   %empty
-| SimpleDeclaration
-| RoutineDeclaration
-| Program
+| SimpleDeclaration Program
+| RoutineDeclaration Program
 ;
 
 
@@ -29,25 +28,29 @@ SimpleDeclaration:
 ;
 
 
-VariableDeclaration
- : var Identifier : Type [ is Expression ]
- | var Identifier is Expression
- 
+VariableDeclaration: 
+  var Identifier COL Type is Expression
+| var Identifier COL Type
+| var Identifier is Expression
+; 
  
 TypeDeclaration: 
   type Identifier is Type
  ;
 
-RoutineDeclaration: routine Identifier ( Parameters ) [ : Type ] is
- Body
- end
+RoutineDeclaration: 
+  routine Identifier ( Parameters ) is Body end
+| routine Identifier ( Parameters ) COL Type is Body end
+;
  
- 
-Parameters: ParameterDeclaration { , ParameterDeclaration }
+Parameters: 
+  ParameterDeclaration 
+| ParameterDeclaration , Parameters
+;
 
-
-ParameterDeclaration : Identifier : Identifier
- 
+ParameterDeclaration: 
+  Identifier : Identifier
+; 
  
 Type: 
   PrimitiveType
@@ -78,22 +81,9 @@ ArrayType:
 
 Body:
   %empty
-| SimpleDeclaration
-| Statement
-| Body
+| SimpleDeclaration Body
+| Statement Body
 ;
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 Statement: 
@@ -110,8 +100,17 @@ Assignment:
   ModifiablePrimary ASSING Expression
 ;
 
+RoutineCall: 
+  Identifier 
+| Identifier Expression RoutineCall1
+;
 
-RoutineCall : Identifier [ ( Expression { , Expression } ) ]
+RoutineCall1:
+  %empty
+|  , Expression
+|  RoutineCall1
+;
+
 
 WhileLoop: 
   while Expression loop Body end
@@ -163,8 +162,10 @@ Factor:
 | Summand SUB Factor
 ;
 
-Summand : Primary | ( Expression )
-
+Summand: 
+  Primary
+| ( Expression )
+;
 
 Primary : 
   IntegralLiteral
