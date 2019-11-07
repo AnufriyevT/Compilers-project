@@ -75,7 +75,7 @@ RoutineDeclaration:
  
  
 Parameters: 
-  OPEN_PAREN ParameterDeclaration ParameterDeclaration1 CLOSE_PAREN
+  ParameterDeclaration ParameterDeclaration1
 ;
 
 
