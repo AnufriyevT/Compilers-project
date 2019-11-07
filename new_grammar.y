@@ -59,7 +59,7 @@ SimpleDeclaration:
 VariableDeclaration: 
   VAR Identifier ASSIGN Type IS Expression
 | VAR Identifier ASSIGN Type
-| var Identifier IS Expression
+| VAR Identifier IS Expression
 ; 
  
  
