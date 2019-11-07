@@ -2,7 +2,7 @@
 %token OP_ASSIGN
 %token IS
 %token INTEGER
-$token TYPE
+%token TYPE
 %token REAL
 %token BOOLEAN
 %token BEGIN
