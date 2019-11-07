@@ -1,7 +1,8 @@
-%token ASSING
+%token ASSIGN
+%token OP_ASSIGN
 %token IS
-%token TYPE
 %token INTEGER
+$token TYPE
 %token REAL
 %token BOOLEAN
 %token BEGIN
@@ -10,19 +11,20 @@
 %token ARRAY
 %token LOOP
 %token IN
+%token REVERSE
+%token ELLIPSIS
+%token FOR_EACH
+%token IF
 %token THEN
 %token ELSE
 %token WHILE
 %token ADD
 %token SUB
-%token MULL
+%token MUL
 %token DIV
 %token ROUTINE
-%token COLON
 %token OPEN_PAREN
 %token CLOSE_PAREN
-%token OPEN_BRACKET
-%token CLOSE_BRACKET
 %token DOT
 %token AND
 %token OR
@@ -36,6 +38,10 @@
 %token MODULE
 %token COMMA
 %token VAR
+%token FROM
+%token TRUE
+%token FALSE
+%token LINE_BREAK
 
 Program: 
   %empty
@@ -51,28 +57,39 @@ SimpleDeclaration:
 
 
 VariableDeclaration: 
-  var Identifier COL Type is Expression
-| var Identifier COL Type
-| var Identifier is Expression
+  VAR Identifier ASSIGN Type IS Expression
+| VAR Identifier ASSIGN Type
+| var Identifier IS Expression
 ; 
+ 
  
 TypeDeclaration: 
-  type Identifier is Type
+  TYPE Identifier IS Type
  ;
 
+
 RoutineDeclaration: 
-  routine Identifier ( Parameters ) is Body end        ??????  [Parameters]
-| routine Identifier ( Parameters ) COL Type is Body end   ??????
+  ROUTINE Identifier OPEN_PAREN Parameters CLOSE_PAREN ASSIGN Type IS LINE_BREAK Body LINE_BREAK END
+| ROUTINE Identifier OPEN_PAREN Parameters CLOSE_PAREN IS LINE_BREAK Body LINE_BREAK END
 ;
  
+ 
 Parameters: 
-  ParameterDeclaration 
-| ParameterDeclaration , Parameters   ?? Comma?
+  OPEN_PAREN ParameterDeclaration ParameterDeclaration1 CLOSE_PAREN
 ;
 
+
+ParameterDeclaration1:
+  %empty
+| COMMA ParameterDeclaration1
+| ParameterDeclaration
+;
+
+
 ParameterDeclaration: 
-  Identifier : Identifier
+  Identifier ASSIGN Identifier
 ; 
+ 
  
 Type: 
   PrimitiveType
@@ -81,25 +98,30 @@ Type:
 | Identifier
 ;
 
+
 PrimitiveType: 
-  integer 
-| real
-| boolean
+  INTEGER 
+| REAL
+| BOOLEAN
 ;
 
+
 RecordType: 
-  record RecordType1  end
+  RECORD RecordType1 END
 ;
+
 
 RecordType1: 
   %empty
 | VariableDeclaration RecordType1
 ;
 
+
 ArrayType: 
-  array Type
-| array Expression Type
+  ARRAY Type
+| ARRAY Expression Type
 ;
+
 
 Body:
   %empty
@@ -113,74 +135,81 @@ Statement:
 | RoutineCall
 | WhileLoop 
 | ForLoop 
-| /* ForeachLoop */      ???
+| ForeachLoop
 | IfStatement
 ;
 
 
 Assignment:
-  ModifiablePrimary ASSING Expression
+  ModifiablePrimary OP_ASSIGN Expression
 ;
 
 RoutineCall: 
   Identifier 
-| Identifier Expression RoutineCall1
+| Identifier OPEN_PAREN Expression RoutineCall1 CLOSE_PAREN
 ;
+
 
 RoutineCall1:
   %empty
-|  , Expression    ??? Comma?
+| COMMA Expression
 |  RoutineCall1
 ;
 
 
 WhileLoop: 
-  while Expression loop Body end
+  WHILE Expression LOOP Body END
 ;
+
 
 ForLoop:
-  for Identifier Range loop Body end
+  FOR Identifier Range LOOP Body END
 ;
+
 
 Range: 
-   in reverse Expression DOT_DOT Expression
-|  in Expression DOT_DOT Expression
+   IN REVERSE Expression ELLIPSIS Expression
+|  IN Expression ELLIPSIS Expression
 ;
+
 
 ForeachLoop:
-    foreach Identifier from ModifiablePrimary loop Body end
+    FOR_EACH Identifier FROM ModifiablePrimary LOOP Body END
 ;
 
+
 IfStatement: 
-  if Expression then Body else Body end
-| if Expression then Body end
+  IF Expression THEN Body ELSE Body END
+| IF Expression THEN Body END
 ; 
 
 
 Expression: 
   Relation 
-| Relation and Expression
-| Relation or Expression
-| Relation xor Expression
+| Relation OPEN_PAREN AND CLOSE_PAREN Expression
+| Relation OPEN_PAREN OR CLOSE_PAREN Expression
+| Relation OPEN_PAREN XOR CLOSE_PAREN Expression
 ;
 
 
 Relation: 
   Simple
 | Simple LESS Simple 
-| Simple LESS_EQ Simple
+| Simple LESS_OR_EQUAL Simple
 | Simple GREATER Simple
-| Simple GR_EQ Simple
-| Simple EQ Simple
-| Simple NOT_EQ Simple
+| Simple GREATER_OR_EQUAL Simple
+| Simple EQUAL Simple
+| Simple NOT_EQUAL Simple
 ;
+
 
 Simple: 
   Factor
-| Factor MULL Simple
+| Factor MUL Simple
 | Factor DIV Simple
-| Factor PROC Simple
+| Factor MODULE Simple
 ;
+
 
 Factor: 
   Summand 
@@ -188,16 +217,18 @@ Factor:
 | Summand SUB Factor
 ;
 
+
 Summand: 
   Primary
-| ( Expression )
+| OPEN_PAREN Expression CLOSE_PAREN
 ;
+
 
 Primary : 
   IntegralLiteral
 | RealLiteral
-| true 
-| false
+| TRUE 
+| FALSE
 | ModifiablePrimary
 
 
@@ -208,6 +239,7 @@ ModifiablePrimary:
 ModifiablePrimary1:
   DOT Identifier ModifiablePrimary1
 | DOT Expression ModifiablePrimary1
-| %empty                                     ?????????? Mistake in project description??
+| %empty                                   
 ;
+
 
