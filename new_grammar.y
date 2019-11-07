@@ -1,19 +1,41 @@
-%token DOT
 %token ASSING
-%token DOT_DOT
-%token LESS
-%token LESS_EQ
-%token GREATER
-%token GR_EQ
-%token EQ
-%token NOT_EQ
-%token MULL
-%token DIV
-%token PROC
+%token IS
+%token TYPE
+%token INTEGER
+%token REAL
+%token BOOLEAN
+%token BEGIN
+%token END
+%token RECORD
+%token ARRAY
+%token LOOP
+%token IN
+%token THEN
+%token ELSE
+%token WHILE
 %token ADD
 %token SUB
-%token COL
-
+%token MULL
+%token DIV
+%token ROUTINE
+%token COLON
+%token OPEN_PAREN
+%token CLOSE_PAREN
+%token OPEN_BRACKET
+%token CLOSE_BRACKET
+%token DOT
+%token AND
+%token OR
+%token XOR
+%token EQUAL
+%token NOT_EQUAL
+%token LESS
+%token GREATER
+%token LESS_OR_GREATER
+%token GREATER_OR_EQUAL
+%token MODULE
+%token COMMA
+%token VAR
 
 Program: 
   %empty
