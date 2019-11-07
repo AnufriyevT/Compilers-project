@@ -39,13 +39,13 @@ TypeDeclaration:
  ;
 
 RoutineDeclaration: 
-  routine Identifier ( Parameters ) is Body end
-| routine Identifier ( Parameters ) COL Type is Body end
+  routine Identifier ( Parameters ) is Body end        ??????  [Parameters]
+| routine Identifier ( Parameters ) COL Type is Body end   ??????
 ;
  
 Parameters: 
   ParameterDeclaration 
-| ParameterDeclaration , Parameters
+| ParameterDeclaration , Parameters   ?? Comma?
 ;
 
 ParameterDeclaration: 
@@ -91,7 +91,7 @@ Statement:
 | RoutineCall
 | WhileLoop 
 | ForLoop 
-| /* ForeachLoop */
+| /* ForeachLoop */      ???
 | IfStatement
 ;
 
@@ -107,7 +107,7 @@ RoutineCall:
 
 RoutineCall1:
   %empty
-|  , Expression
+|  , Expression    ??? Comma?
 |  RoutineCall1
 ;
 
@@ -123,6 +123,10 @@ ForLoop:
 Range: 
    in reverse Expression DOT_DOT Expression
 |  in Expression DOT_DOT Expression
+;
+
+ForeachLoop:
+    foreach Identifier from ModifiablePrimary loop Body end
 ;
 
 IfStatement: 
@@ -182,6 +186,6 @@ ModifiablePrimary:
 ModifiablePrimary1:
   DOT Identifier ModifiablePrimary1
 | DOT Expression ModifiablePrimary1
-| %empty
+| %empty                                     ?????????? Mistake in project description??
 ;
 
