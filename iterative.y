@@ -24,6 +24,10 @@
 %token REVERSE
 %token ELLIPSIS
 %token FOR_EACH
+%token FOR
+%token LESS_OR_EQUAL
+%token IntegralLiteral
+%token RealLiteral
 %token IF
 %token THEN
 %token ELSE
@@ -52,6 +56,8 @@
 %token TRUE
 %token FALSE
 %token LINE_BREAK
+%token Identifier
+
 
 %%
 Program: 
@@ -91,7 +97,7 @@ Parameters:
 
 
 ParameterDeclaration1:
-| COMMA ParameterDeclaration1
+  COMMA ParameterDeclaration1
 | ParameterDeclaration
 |
 ;
@@ -123,7 +129,7 @@ RecordType:
 
 
 RecordType1: 
-| VariableDeclaration RecordType1
+  VariableDeclaration RecordType1
 |
 ;
 
@@ -135,7 +141,7 @@ ArrayType:
 
 
 Body:
-| SimpleDeclaration Body
+  SimpleDeclaration Body
 | Statement Body
 |
 ;
@@ -162,7 +168,7 @@ RoutineCall:
 
 
 RoutineCall1:
-| COMMA Expression
+   COMMA Expression
 |  RoutineCall1
 |
 ;
@@ -241,6 +247,7 @@ Primary :
 | TRUE 
 | FALSE
 | ModifiablePrimary
+;
 
 ModifiablePrimary: 
   Identifier ModifiablePrimary1
@@ -313,14 +320,14 @@ ModifiablePrimary1:
              else if (char.IsDigit(ch))
              {
                  yylval = ch - '0';
-                 return (int)Tokens.DIGIT;
+                 return (int)Tokens.Identifier;
              }
              // Don't use IsLetter here!
              else if ((ch >= 'a' && ch <= 'z') ||
                       (ch >= 'A' && ch <= 'Z'))
              {
                 yylval = char.ToLower(ch) - 'a';
-                return (int)Tokens.LETTER;
+                return (int)Tokens.RealLiteral;
              }
              else
                  switch (ch)
