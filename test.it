@@ -1,0 +1,15 @@
+type int is integer
+type bool is boolean
+
+var variable_1 : integer;
+var variable_2 : integer;
+
+routine routine_1 ( var_a : variable_1, var_b : variable_2  ) is
+for var_a in true + true / true + true or true - true * true + true .. true - true / true - true or true + true * true + true loop type lol is RecordType end
+end
+
+type Array_2 is record var Identif : integer end
+
+var variable_3 is variable_1 + variable_2
+
+Program : var FirstProgram is RealLiteral + RealLiteral * RealLiteral - RealLiteral and RealLiteral + RealLiteral / RealLiteral - RealLiteral
