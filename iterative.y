@@ -63,6 +63,8 @@
 %token FALSE
 %token LINE_BREAK
 %token Identifier
+%token OPEN_SQUARE_BRACKET
+%token CLOSE_SQUARE_BRACKET
 
 %%
 Program: 
@@ -97,13 +99,10 @@ RoutineDeclaration:
   ROUTINE Identifier OPEN_PAREN Parameters CLOSE_PAREN RoutineReturnType IS LINE_BREAK Body LINE_BREAK END
 ;
  
-
 RoutineReturnType: 
     | ASSIGN type 
 	|
     ;
- 
-
 
 Parameters: 
   ParameterDeclaration ParameterDeclaration1
@@ -148,7 +147,7 @@ RecordType1:
 
 ArrayType: 
   ARRAY Type
-| ARRAY Expression Type
+| ARRAY OPEN_SQUARE_BRACKET Expression CLOSE_SQUARE_BRACKET Type
 ;
 
 
@@ -401,6 +400,10 @@ ModifiablePrimary1:
             case '>': return true;
             case '<': return true;
             case ':': return true;
+            case '(': return true;
+            case ')': return true;
+            case '[': return true;
+            case ']': return true;
             default: return false;
           }
          }
@@ -416,6 +419,10 @@ ModifiablePrimary1:
             case ">": return (int) Tokens.GREATER;
             case "<": return (int) Tokens.LESS;
             case ":": return (int) Tokens.ASSIGN;
+            case "(": return (int) Tokens.OPEN_PAREN;
+            case ")": return (int) Tokens.CLOSE_PAREN;
+            case "[": return (int) Tokens.OPEN_SQUARE_BRACKET;
+            case "]": return (int) Tokens.CLOSE_SQUARE_BRACKET;
 
             case ":=": return (int) Tokens.OP_ASSIGN;
             case ">=": return (int) Tokens.GREATER_OR_EQUAL;
@@ -476,7 +483,7 @@ ModifiablePrimary1:
               return (int) Tokens.Identifier;
             }
 
-            // ---- OPERATIONS ----
+            // ---- OPERATIONS, BRACKETS ----
             if (is_op_symbol(ch)) {
               StringBuilder sb = new StringBuilder();
               sb.Append(ch);
