@@ -79,38 +79,46 @@ SimpleDeclaration:
 
 
 VariableDeclaration: 
-  VAR Identifier ASSIGN Type IS Expression
-| VAR Identifier ASSIGN Type
+  VAR Identifier ASSIGN Type VariableExpression
 | VAR Identifier IS Expression
 ; 
  
+VariableExpression: 
+    | IS expression 
+	|
+    ;
+
  
 TypeDeclaration: 
   TYPE Identifier IS Type
  ;
 
 RoutineDeclaration: 
-  ROUTINE Identifier OPEN_PAREN Parameters CLOSE_PAREN ASSIGN Type IS LINE_BREAK Body LINE_BREAK END
-| ROUTINE Identifier OPEN_PAREN Parameters CLOSE_PAREN IS LINE_BREAK Body LINE_BREAK END
+  ROUTINE Identifier OPEN_PAREN Parameters CLOSE_PAREN RoutineReturnType IS LINE_BREAK Body LINE_BREAK END
 ;
  
+
+RoutineReturnType: 
+    | ASSIGN type 
+	|
+    ;
  
+
+
 Parameters: 
   ParameterDeclaration ParameterDeclaration1
 ;
 
 
 ParameterDeclaration1:
-  COMMA ParameterDeclaration1
-| ParameterDeclaration
+  COMMA ParameterDeclaration
+| ParameterDeclaration1
 |
 ;
-
 
 ParameterDeclaration: 
   Identifier ASSIGN Identifier
 ; 
- 
  
 Type: 
   PrimitiveType
@@ -156,7 +164,6 @@ Statement:
 | RoutineCall
 | WhileLoop 
 | ForLoop 
-| ForeachLoop
 | IfStatement
 ;
 
@@ -172,8 +179,7 @@ RoutineCall:
 
 
 RoutineCall1:
-   COMMA Expression
-|  RoutineCall1
+   COMMA Expression RoutineCall1
 |
 ;
 
@@ -189,52 +195,84 @@ ForLoop:
 
 
 Range: 
-   IN REVERSE Expression ELLIPSIS Expression
-|  IN Expression ELLIPSIS Expression
+   IN Reverse Expression ELLIPSIS Expression
 ;
 
-
-ForeachLoop:
-    FOR_EACH Identifier FROM ModifiablePrimary LOOP Body END
+Reverse:
+	REVERSE
+|	
 ;
+
 
 
 IfStatement: 
-  IF Expression THEN Body ELSE Body END
-| IF Expression THEN Body END
+  IF Expression THEN Body ElseBody END
 ; 
 
 
-Expression: 
-  Relation 
-| Relation OPEN_PAREN AND CLOSE_PAREN Expression
-| Relation OPEN_PAREN OR CLOSE_PAREN Expression
-| Relation OPEN_PAREN XOR CLOSE_PAREN Expression
+ElseBody:
+	ELSE Body
+|
 ;
 
+Expression: 
+  Relation Relation1
+;
+
+Relation1:
+	logic_operation Relation Relation1
+|	
+;
+
+logic_operation
+    : AND 
+    | OR 
+    | XOR 
+    ;
 
 Relation: 
   Simple
-| Simple LESS Simple 
-| Simple LESS_OR_EQUAL Simple
-| Simple GREATER Simple
-| Simple GREATER_OR_EQUAL Simple
-| Simple EQUAL Simple
-| Simple NOT_EQUAL Simple
+| Simple compare_sign Simple 
 ;
+
+compare_sign:
+    LESS 
+    | LESS_OR_EQUAL 
+    | GREATER 
+    | GREATER_OR_EQUAL 
+    | EQUAL
+    | NOT_EQUAL
+    ;
 
 
 Simple: 
-  Factor
-| Factor MUL Simple
-| Factor DIV Simple
-| Factor MODULE Simple
+	Factor  Factor1
 ;
 
+Factor1:
+	mult_sign Factor Factor1
+| 
+;
+
+mult_sign
+    : MUL
+    | DIV
+    | MODULE
+    ;
+
 Factor: 
-  Summand 
-| Summand ADD Factor
-| Summand SUB Factor
+  Summand Summand1
+;
+
+Summand1:
+	sum_sign Summand Summand1
+|	
+;
+
+
+sum_sign: 
+	ADD
+|	SUB
 ;
 
 Summand: 
@@ -255,11 +293,13 @@ ModifiablePrimary:
   Identifier ModifiablePrimary1
 ;
   
+
 ModifiablePrimary1:
   DOT Identifier ModifiablePrimary1
 | DOT Expression ModifiablePrimary1
 |                                 
 ;
+
 %%
     Parser() : base(null) {}
 
