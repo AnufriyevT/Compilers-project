@@ -1,11 +1,11 @@
-﻿﻿type int is integer
+﻿type int is integer
 type bool is boolean
 
-type Array_2 is record var Identif : integer end
+type Array_2 is record var Identif : integer
 
-var variable_1 : integer;
-var variable_2 : integer;
+var variable_1 : integer
+var variable_2 : integer
 
 var variable_3 is variable_1 + variable_2
 
-Program : var FirstProgram is RealLiteral + RealLiteral * RealLiteral - RealLiteral and RealLiteral + RealLiteral / RealLiteral - RealLiteral
+var FirstProgram is RealLiteral + RealLiteral * RealLiteral - RealLiteral - RealLiteral + RealLiteral / RealLiteral - RealLiteral end
