@@ -1,15 +1,40 @@
-type int is integer
-type bool is boolean
+type Int is int
 
-var variable_1 : integer;
-var variable_2 : integer;
-
-routine routine_1 ( var_a : variable_1, var_b : variable_2  ) is
-for var_a in true + true / true + true or true - true * true + true .. true - true / true - true or true + true * true + true loop type lol is RecordType end
+routine funcGetVoid(a:int) is
 end
 
-type Array_2 is record var Identif : integer end
+routine funcIntIncrement(a:int):int is
+    return a + 1
+end
 
-var variable_3 is variable_1 + variable_2
+routine funcFloatIncrement(a:float):float is
+    return a + 1
+end
 
-Program : var FirstProgram is RealLiteral + RealLiteral * RealLiteral - RealLiteral and RealLiteral + RealLiteral / RealLiteral - RealLiteral
+func castToInt(a:float):int is
+    return a
+end
+
+routine main():Int is
+    var a:int
+    var i1:int
+    var i2:int is 2
+    var i3:int is 3
+    var i4:float
+    var i5:float is 5.0
+    i2 := 6.0 + i5
+    if i2 then
+        var i2:float is 1.5
+        var i3:float is funcFloatIncrement(i2)
+        if castToInt(i2) then
+            i4 := funcFloatIncrement(i2) + i3 + 7
+        else
+            i4 := funcFloatIncrement(i2) + i3 + 5
+         end
+    else
+        var i3:float is 3.3
+        i4 := i2 + i3 + 42.0
+    end
+    i5 := funcIntIncrement(i4) + funcIntIncrement(i1 + i5)
+    return i2 + castToInt(i5)
+end
