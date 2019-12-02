@@ -65,6 +65,7 @@
 %token Identifier
 %token OPEN_SQUARE_BRACKET
 %token CLOSE_SQUARE_BRACKET
+%token RETURN
 
 %%
 Program: 
@@ -381,7 +382,8 @@ ModifiablePrimary:
             case "not": return (int) Tokens.NOT;
             case "true": return (int) Tokens.TRUE;
             case "false": return (int) Tokens.FALSE;
-            //case "return": return (int) Tokens.RETURN; //wtf
+            case "return": return (int) Tokens.RETURN; //wtf
+            //case "func": return (int) Tokens.FUNC
             default: return -1;
           }
          }
@@ -466,11 +468,40 @@ ModifiablePrimary:
                   }
                   string str = sb.ToString();
                   yylval.dVal = Convert.ToDouble(str);
+                  Console.WriteLine("FLOAT: {0}", str);
                   return (int) Tokens.REAL;
                 } else {
                   yylval.iVal = 0;
+                  Console.WriteLine("INTEGER: {0}", ch);
                   return (int) Tokens.INTEGER;
                 }
+              }
+              if (char.IsDigit(next) && next != '0') {
+                next = (char) reader.Peek();
+                while (char.IsDigit(next)) {
+                  sb.Append((char) reader.Read());
+                  next = (char) reader.Peek();
+                }
+                string str = sb.ToString();
+                int i = 0;
+                if (!Int32.TryParse(str, out i)) {
+                  return (int) Tokens.EOF;
+                }
+                Console.WriteLine("INTEGER: {0}", str);
+                yylval.iVal = i;
+                return (int) Tokens.INTEGER;
+              }
+              if (next == '.') {
+                sb.Append((char) reader.Read());
+                next = (char) reader.Peek();
+                while (char.IsDigit(next)) {
+                  sb.Append((char) reader.Read());
+                  next = (char) reader.Peek();
+                }
+                string str = sb.ToString();
+                yylval.dVal = Convert.ToDouble(str);
+                Console.WriteLine("FLOAT: {0}", str);
+                return (int) Tokens.REAL;
               }
             }
                 
@@ -509,7 +540,7 @@ ModifiablePrimary:
             }
 
             
-            Console.WriteLine("{0}", ch);
+            Console.WriteLine("NAN: {0}", ch);
             return (int) Tokens.Identifier;
         }
     

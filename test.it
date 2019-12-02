@@ -11,7 +11,7 @@ routine funcFloatIncrement(a:float):float is
     return a + 1
 end
 
-func castToInt(a:float):int is
+routine castToInt(a:float):int is
     return a
 end
 
