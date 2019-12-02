@@ -1,4 +1,4 @@
-﻿%{
+﻿﻿%{
     
 %}
 
@@ -370,11 +370,12 @@ ModifiablePrimary:
             case "not": return (int) Tokens.NOT;
             case "true": return (int) Tokens.TRUE;
             case "false": return (int) Tokens.FALSE;
+            //case "return": return (int) Tokens.RETURN; //wtf
             default: return -1;
           }
          }
 
-         public bool is_op_symbol(char ch) {
+         public bool is_first_op_symbol(char ch) {
           switch (ch) {
             case '+': return true;
             case '-': return true;
@@ -389,6 +390,13 @@ ModifiablePrimary:
             case ')': return true;
             case '[': return true;
             case ']': return true;
+            default: return false;
+          }
+         }
+ 
+         public bool is_second_op_symbol(char ch) {
+          switch (ch) {
+            case '=': return true;
             default: return false;
           }
          }
@@ -445,9 +453,12 @@ ModifiablePrimary:
                     sb.Append((char) reader.Read());
                     next = (char) reader.Peek();
                   }
+                  string str = sb.ToString();
+                  yylval.dVal = Convert.ToDouble(str);
+                  return (int) Tokens.REAL;
                 } else {
                   yylval.iVal = 0;
-                  return Tokens.INTEGER;
+                  return (int) Tokens.INTEGER;
                 }
               }
             }
@@ -461,8 +472,8 @@ ModifiablePrimary:
                 next = (char) reader.Peek();
               }
               string str = sb.ToString();
-              keyword_token = get_keyword(str);
-              if (! keyword_token == -1)) {
+              int keyword_token = get_keyword(str);
+              if (! (keyword_token == -1)) {
                 Console.WriteLine("KEYWORD: {0}", str);
                 return keyword_token;
               }
@@ -473,11 +484,11 @@ ModifiablePrimary:
             }
 
             // ---- OPERATIONS, BRACKETS ----
-            if (is_op_symbol(ch)) {
+            if (is_first_op_symbol(ch)) {
               StringBuilder sb = new StringBuilder();
               sb.Append(ch);
               char next = (char) reader.Peek();
-              if (is_op_symbol(next)) {
+              if (is_second_op_symbol(next)) {
                 next = (char) reader.Read();
                 sb.Append(next);
               }
