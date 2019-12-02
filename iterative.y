@@ -280,7 +280,7 @@ Summand:
 ;
 
 
-Primary : 
+Primary: 
   IntegralLiteral
 | RealLiteral
 | TRUE 
@@ -460,6 +460,9 @@ ModifiablePrimary1:
                     sb.Append((char) reader.Read());
                     next = (char) reader.Peek();
                   }
+                } else {
+                  yylval.iVal = 0;
+                  return Tokens.INTEGER;
                 }
               }
             }
@@ -473,9 +476,10 @@ ModifiablePrimary1:
                 next = (char) reader.Peek();
               }
               string str = sb.ToString();
-              if (is_keyword(str)) {
+              keyword_token = get_keyword(str);
+              if (! keyword_token == -1)) {
                 Console.WriteLine("KEYWORD: {0}", str);
-                return get_keyword(str);
+                return keyword_token;
               }
                   
               Console.WriteLine("IDENTIFIER: {0}", str);
