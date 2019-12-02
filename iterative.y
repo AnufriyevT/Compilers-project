@@ -164,6 +164,7 @@ Statement:
 | WhileLoop 
 | ForLoop 
 | IfStatement
+| Return
 ;
 
 
@@ -190,6 +191,16 @@ WhileLoop:
 
 ForLoop:
   FOR Identifier Range LOOP Body END
+;
+
+
+Return:
+ RETURN Return_value
+;
+
+Return_value:
+  Expression
+| 
 ;
 
 
