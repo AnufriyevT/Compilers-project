@@ -1,4 +1,4 @@
-﻿﻿%{
+﻿%{
     
 %}
 
@@ -86,7 +86,7 @@ VariableDeclaration:
 ; 
  
 VariableExpression: 
-    | IS expression 
+    | IS Expression 
 	|
     ;
 
@@ -96,24 +96,24 @@ TypeDeclaration:
  ;
 
 RoutineDeclaration: 
-  ROUTINE Identifier OPEN_PAREN Parameters CLOSE_PAREN RoutineReturnType IS LINE_BREAK Body LINE_BREAK END
+  ROUTINE Identifier OPEN_PAREN RoutineParameters CLOSE_PAREN RoutineReturnType IS Body END
 ;
  
+RoutineParameters:
+  Parameters
+|
+;
+
 RoutineReturnType: 
-    | ASSIGN type 
+    | ASSIGN Type 
 	|
     ;
 
 Parameters: 
-  ParameterDeclaration ParameterDeclaration1
+  Parameters COMMA ParameterDeclaration
+| ParameterDeclaration 
 ;
 
-
-ParameterDeclaration1:
-  COMMA ParameterDeclaration
-| ParameterDeclaration1
-|
-;
 
 ParameterDeclaration: 
   Identifier ASSIGN Identifier
@@ -215,13 +215,10 @@ ElseBody:
 ;
 
 Expression: 
-  Relation Relation1
+  Relation
+| Expression logic_operation Relation
 ;
 
-Relation1:
-	logic_operation Relation Relation1
-|	
-;
 
 logic_operation
     : AND 
@@ -245,12 +242,8 @@ compare_sign:
 
 
 Simple: 
-	Factor  Factor1
-;
-
-Factor1:
-	mult_sign Factor Factor1
-| 
+  Simple mult_sign Factor
+| Factor 
 ;
 
 mult_sign
@@ -260,14 +253,9 @@ mult_sign
     ;
 
 Factor: 
-  Summand Summand1
+  Factor sum_sign Summand
+| Summand 
 ;
-
-Summand1:
-	sum_sign Summand Summand1
-|	
-;
-
 
 sum_sign: 
 	ADD
@@ -289,15 +277,12 @@ Primary:
 ;
 
 ModifiablePrimary: 
-  Identifier ModifiablePrimary1
+  Identifier 
+| ModifiablePrimary OPEN_SQUARE_BRACKET Expression CLOSE_SQUARE_BRACKET
+| ModifiablePrimary DOT Identifier
 ;
   
 
-ModifiablePrimary1:
-  DOT Identifier ModifiablePrimary1
-| DOT Expression ModifiablePrimary1
-|                                 
-;
 
 %%
     Parser() : base(null) {}
