@@ -108,7 +108,7 @@ RoutineParameters:
 ;
 
 RoutineReturnType: 
-    | ASSIGN Type 
+    ASSIGN Type 
 	|
     ;
 
