@@ -83,6 +83,8 @@ SimpleDeclaration:
 
 VariableDeclaration: 
   VAR Identifier ASSIGN Type VariableExpression
+| VAR Identifier ASSIGN Type IS RoutineCall
+| VAR Identifier IS RoutineCall
 | VAR Identifier IS Expression
 ; 
  
@@ -114,7 +116,6 @@ Parameters:
   Parameters COMMA ParameterDeclaration
 | ParameterDeclaration 
 ;
-
 
 ParameterDeclaration: 
   Identifier ASSIGN Identifier
@@ -171,6 +172,7 @@ Statement:
 
 Assignment:
   ModifiablePrimary OP_ASSIGN Expression
+  | ModifiablePrimary OP_ASSIGN RoutineCall
 ;
 
 RoutineCall: 
@@ -281,8 +283,8 @@ Summand:
 
 
 Primary: 
-  IntegralLiteral
-| RealLiteral
+  INTEGER 
+| REAL
 | TRUE 
 | FALSE
 | ModifiablePrimary
@@ -459,49 +461,73 @@ ModifiablePrimary:
               sb.Append(ch);
               char next = (char) reader.Peek();
 
-              if (ch == '0') {
-                if (next == '.') {
+              if (ch == '0' && next != '.') {
+                yylval.iVal = 0;
+                  string str = sb.ToString();
+                  Console.WriteLine("INTEGER: {0}", str);
+                  return (int) Tokens.INTEGER;
+              }
+              if (ch == '0' && next == '.') {
+                
+                  next = (char) reader.Read();
+                  sb.Append(next); //read dot
                   next = (char) reader.Peek();
+                  if (!char.IsDigit(next)) {
+                    this.yyerror( "Illegal number \"{0}\" at least 1 number after \'.\' in float", next );
+                  }
                   while (char.IsDigit(next)) {
                     sb.Append((char) reader.Read());
                     next = (char) reader.Peek();
                   }
                   string str = sb.ToString();
-                  yylval.dVal = Convert.ToDouble(str);
+                  try {
+                    yylval.dVal = Convert.ToDouble(str);
+                  }
+                  catch (FormatException) {
+                    this.yyerror("Tvoi Float Govno {0}", str);
+                    return (int) Tokens.error;
+                  }
+                  Console.WriteLine("FLOAT: {0}", str);
+                  return (int) Tokens.REAL;
+              }
+              //ch 1..9
+              if (ch != '0') {
+                while (char.IsDigit(next)) {
+                  sb.Append((char) reader.Read());
+                  next = (char) reader.Peek();
+                }
+                if (next == '.') {
+                  next = (char) reader.Read();
+                  sb.Append(next);
+                  next = (char) reader.Peek();
+                  if (!char.IsDigit(next)) {
+                    this.yyerror( "Illegal number \"{0}\" at least 1 number after \'.\' in float", next );
+                  }
+                  while (char.IsDigit(next)) {
+                    sb.Append((char) reader.Read());
+                    next = (char) reader.Peek();
+                  }
+                  string str = sb.ToString();
+                  try {
+                    yylval.dVal = Convert.ToDouble(str.Replace(".", ","));
+                  }
+                  catch (FormatException) {
+                    this.yyerror("Tvoi Float Govno {0}", str);
+                    return (int) Tokens.error;
+                  }
                   Console.WriteLine("FLOAT: {0}", str);
                   return (int) Tokens.REAL;
                 } else {
-                  yylval.iVal = 0;
-                  Console.WriteLine("INTEGER: {0}", ch);
+                  // Else it is definitely integer
+                  string str = sb.ToString();
+                  int i = 0;
+                  if (!Int32.TryParse(str, out i)) {
+                    this.yyerror( "Illegal int number cant be converted to INTEGER", str );
+                  }
+                  Console.WriteLine("INTEGER: {0}", i);
+                  yylval.iVal = 1;
                   return (int) Tokens.INTEGER;
                 }
-              }
-              if (char.IsDigit(next) && next != '0') {
-                next = (char) reader.Peek();
-                while (char.IsDigit(next)) {
-                  sb.Append((char) reader.Read());
-                  next = (char) reader.Peek();
-                }
-                string str = sb.ToString();
-                int i = 0;
-                if (!Int32.TryParse(str, out i)) {
-                  return (int) Tokens.EOF;
-                }
-                Console.WriteLine("INTEGER: {0}", str);
-                yylval.iVal = i;
-                return (int) Tokens.INTEGER;
-              }
-              if (next == '.') {
-                sb.Append((char) reader.Read());
-                next = (char) reader.Peek();
-                while (char.IsDigit(next)) {
-                  sb.Append((char) reader.Read());
-                  next = (char) reader.Peek();
-                }
-                string str = sb.ToString();
-                yylval.dVal = Convert.ToDouble(str);
-                Console.WriteLine("FLOAT: {0}", str);
-                return (int) Tokens.REAL;
               }
             }
                 
