@@ -1,9 +1,9 @@
 type Int is int
 
-routine funcGetVoid(a:int) is
+routine funcGetVoid(a:Int) is
 end
 
-routine funcIntIncrement(a:int):int is
+routine funcIntIncrement(a:Int):int is
     return a + 1
 end
 
@@ -16,31 +16,31 @@ routine castToInt(a:float):int is
 end
 
 routine main():Int is
-    var aaa:int
+    var aaa:Int
     var bol:boolean
-    var rec1: record var el1:int is 3 var el2:int is 5 end
+    var rec1: record var el1:Int is 3 var el2:Int is 5 end
     var ar1: array[2] int
     var ar2: array[3] int
-    if bool is true then
+    if bool then
         aaa := ar1
     else
         aaa := ar2
-    while bool is false loop
-        var q:int is 1
-        var w:int is 2
+    while bool loop
+        var q:Int is 1
+        var w:Int is 2
         q := w + w
     end
-    var a:int
-    var i1:int
-    var i2:int is 2
-    var i3:int is 3
+    var a:Int
+    var i1:Int
+    var i2:Int is 2
+    var i3:Int is 3
     var i4:float
     var i5:float is 5.0
     i2 := 6.0 + i5
     if i2 then
         var i2:float is 1.5
         var i3:float is funcFloatIncrement(i2)
-        var i9:int is castToInt(i2)
+        var i9:Int is castToInt(i2)
         if i9 then
             var i3:float
             i4 := i3 + i3 + 7
@@ -57,4 +57,5 @@ routine main():Int is
     i5 := temp + temp2
     var res is castToInt(i5)
     return i2 + res
+end
 end

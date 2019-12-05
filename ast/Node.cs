@@ -12,11 +12,16 @@ namespace Compiler
         public AST_Node[] children;
         public bool is_token;
         public string return_type = null;
+
+        public string type = null;
         public int ival = 0;
         public double dval = 0.0;
         public string identifier_string;
+        public static SymbolTable global_scope = null;
 
         private static string filepath = "llvm_input.llvm";
+        public static SymbolTable symbolicTableRoot = new SymbolTable(null);
+        public static SymbolTable currentScope = symbolicTableRoot;
 
         public AST_Node(string name, bool is_token, params AST_Node[] children)
         {
@@ -33,6 +38,16 @@ namespace Compiler
             FileStream llvm_input_fd = File.Create(AST_Node.filepath);
             llvm_input_fd.Write(llvm_bitcode_to_file, 0, llvm_bitcode_to_file.Length);
             llvm_input_fd.Close();
+        }
+        public void BuildSymbolTable() {
+            SymbolTable.handleNodeIn(this);
+            foreach (AST_Node child in this.children)
+                {
+                    if (child != null) {
+                        child.BuildSymbolTable();
+                    }
+                }
+            SymbolTable.handleNodeOut(this);
         }
         public void print_self(int spaces)
         {

@@ -12,6 +12,9 @@
 %token IS
 %token INTEGER
 %token TYPE
+%token TYPE_INT
+%token TYPE_REAL
+%token TYPE_BOOL
 %token REAL
 %token BOOLEAN
 %token BEGIN
@@ -63,7 +66,7 @@
 
 %%
 Program: 
-  SimpleDeclaration Program {$$ = new AST_Node("Program", false, $1, $2); $$.print_self(0);}
+  SimpleDeclaration Program {$$ = new AST_Node("Program", false, $1, $2); $$.print_self(0); $$.BuildSymbolTable();}
 | RoutineDeclaration Program {$$ = new AST_Node("Program", false, $1, $2); $$.print_self(0);}
 | {$$ = new AST_Node("Program", false); $$.print_self(0);}
 ;
@@ -76,11 +79,11 @@ SimpleDeclaration:
 
 // SymbolTAble push
 VariableDeclaration: 
-  VAR Identifier ASSIGN Type IS Expression {$$ = new AST_Node("VariableDeclaration", false, $1, $2, $3, $4, $5, $6);}
-| VAR Identifier ASSIGN Type {$$ = new AST_Node("VariableDeclaration", false, $1, $2, $3, $4, null, null);}
-| VAR Identifier ASSIGN Type IS RoutineCall {$$ = new AST_Node("VariableDeclaration", false, $1, $2, $3, $4, $5, $6);}
-| VAR Identifier IS RoutineCall {$$ = new AST_Node("VariableDeclaration", false, $1, $2, $3, $4);}
-| VAR Identifier IS Expression {$$ = new AST_Node("VariableDeclaration", false, $1, $2, $3, $4);}
+  VAR Identifier ASSIGN Type IS Expression {$$ = new AST_Node("VariableDeclaration", false, $1, $2, $3, $4, $5, $6); $$.identifier_string = $2.identifier_string; $$.return_type = $4.return_type;}
+| VAR Identifier ASSIGN Type {$$ = new AST_Node("VariableDeclaration", false, $1, $2, $3, $4, null, null); $$.identifier_string = $2.identifier_string; $$.return_type = $4.return_type;}
+| VAR Identifier ASSIGN Type IS RoutineCall {$$ = new AST_Node("VariableDeclaration", false, $1, $2, $3, $4, $5, $6); $$.identifier_string = $2.identifier_string; $$.return_type = $4.return_type;}
+| VAR Identifier IS RoutineCall {$$ = new AST_Node("VariableDeclaration", false, $1, $2, $3, $4); $$.identifier_string = $2.identifier_string; $$.return_type = "generic";}
+| VAR Identifier IS Expression {$$ = new AST_Node("VariableDeclaration", false, $1, $2, $3, $4); $$.identifier_string = $2.identifier_string; $$.return_type = "generic";}
 ; 
 
 // TypeTable push
@@ -91,7 +94,10 @@ TypeDeclaration:
 // NEW SCOPE SymbolTAble push
 RoutineDeclaration: 
   ROUTINE Identifier OPEN_PAREN RoutineParameters CLOSE_PAREN RoutineReturnType IS Body END
-  {$$ = new AST_Node("RoutineDeclaration", false, $1, $2, $3, $4, $5, $6, $7, $8, $9);}
+  {
+    $$ = new AST_Node("RoutineDeclaration", false, $1, $2, $3, $4, $5, $6, $7, $8, $9); 
+    $$.return_type = $6.return_type; $$.identifier_string = $2.identifier_string;
+  }
 ;
  
 RoutineParameters:
@@ -101,36 +107,36 @@ RoutineParameters:
 
 // TypeTable check
 RoutineReturnType: 
-    ASSIGN Type {$$ = new AST_Node("RoutineReturnType", false, $1, $2);}
-	| {$$ = null;}
+    ASSIGN Type {$$ = new AST_Node("RoutineReturnType", false, $1, $2); $$.return_type = $2.return_type;}
+	| {$$ = new AST_Node("RoutineReturnType", false); $$.return_type = "void";}
   ;
 
 // POSSIBLE CONFLICT
 Parameters: 
-  Parameters COMMA ParameterDeclaration {$$ = new AST_Node("Parameters", false, $1, $2, $3);}
+  ParameterDeclaration COMMA Parameters {$$ = new AST_Node("Parameters", false, $1, $2, $3);}
 | ParameterDeclaration {$$ = $1;}
 ;
 
 // NEW SCOPE SymbolTAble push
 ParameterDeclaration: 
-  Identifier ASSIGN Identifier {$$ = new AST_Node("ParameterDeclaration", false, $1, $2, $3);}
+  Type ASSIGN Identifier {$$ = new AST_Node("ParameterDeclaration", false, $1, $2, $3); $$.identifier_string = $1.identifier_string; $$.return_type = $3.identifier_string;}
 ; 
  
 Type: 
-  PrimitiveType {$$ = $1;}
-| ArrayType {$$ = $1;}
-| RecordType {$$ = $1;}
-| Identifier {$$ = $1;}
+  PrimitiveType {$$ = $1; $$.return_type = $1.return_type;}
+| ArrayType {$$ = $1; $$.return_type = $1.return_type;}
+| RecordType {$$ = $1; $$.return_type = $1.return_type;}
+| Identifier {$$ = $1; $$.return_type = $1.identifier_string;}
 ;
 
 PrimitiveType: 
-  INTEGER {$$ = $1;}
-| REAL {$$ = $1;}
-| BOOLEAN {$$ = $1;}
+  TYPE_INT  {$$ = $1; $$.return_type = $1.return_type;}
+| TYPE_REAL {$$ = $1; $$.return_type = $1.return_type;}
+| TYPE_BOOL {$$ = $1; $$.return_type = $1.return_type;}
 ;
 
 RecordType: 
-  RECORD RecordBody END {$$ = new AST_Node("RecordType", false, $1, $2, $3);}
+  RECORD RecordBody END {$$ = new AST_Node("RecordType", false, $1, $2, $3); $$.return_type = "record";}
 ;
 
 RecordBody: 
@@ -139,8 +145,8 @@ RecordBody:
 ;
 
 ArrayType: 
-  ARRAY Type {$$ = new AST_Node("ArrayType", false, $1, $2);}
-| ARRAY OPEN_SQUARE_BRACKET Expression CLOSE_SQUARE_BRACKET Type  {$$ = new AST_Node("ArrayType", false, $1, $2, $3, $4, $5);}
+  ARRAY Type {$$ = new AST_Node("ArrayType", false, $1, $2); $$.return_type = "[" + $2.return_type + "]";}
+| ARRAY OPEN_SQUARE_BRACKET Expression CLOSE_SQUARE_BRACKET Type  {$$ = new AST_Node("ArrayType", false, $1, $2, $3, $4, $5); $$.return_type = "[" + $5.return_type + "]";}
 ;
 
 Body:
@@ -168,7 +174,7 @@ Assignment:
 ;
 
 RoutineCall: 
-  Identifier {$$ = $1;}
+  Identifier {$$ = new AST_Node("RoutineCall", false, $1);}
 | Identifier OPEN_PAREN Expression ArgsList CLOSE_PAREN {$$ = new AST_Node("RoutineCall", false, $1, $2, $3, $4, $5);}
 ;
 
@@ -200,7 +206,7 @@ Reverse:
 ;
 
 IfStatement: 
-  IF Expression THEN Body ElseBody END {$$ = new AST_Node("IfStatement", false, $1, $2, $3, $4, $5, $6);}
+  IF Expression THEN Body ElseBody END {$$ = new AST_Node("IfStatement", false, $1, $2, $3, $4, $5, $6); $$.return_type = "-"; $$.identifier_string = SymbolTable.RandomString();}
 ; 
 
 ElseBody:
@@ -236,7 +242,7 @@ compare_sign:
 
 
 Simple: 
-  Simple mult_sign Factor {$$ = new AST_Node("Simple", false, $1, $2, $3);}
+  Factor mult_sign Simple {$$ = new AST_Node("Simple", false, $1, $2, $3);}
 | Factor {$$ = $1;}
 ;
 
@@ -247,7 +253,7 @@ mult_sign:
 ;
 
 Factor: 
-  Factor sum_sign Summand {$$ = new AST_Node("Factor", false, $1, $2, $3);}
+  Summand sum_sign Factor {$$ = new AST_Node("Factor", false, $1, $2, $3);}
 | Summand {$$ = $1;}
 ;
 
@@ -296,7 +302,7 @@ ModifiablePrimary:
         parser.Parse();
     }
 
-    class Lexer: QUT.Gppg.AbstractScanner<Compiler.AST_Node,LexLocation>
+    class Lexer: QUT.Gppg.AbstractScanner<Compiler.AST_Node, LexLocation>
     {
          private System.IO.TextReader reader;
     
@@ -312,7 +318,7 @@ ModifiablePrimary:
             case "is": return true;
             case "var": return true;
             case "routine": return true;
-            case "integer": return true;
+            case "int": return true;
             case "real": return true;
             case "boolean": return true;
             case "record": return true;
@@ -342,11 +348,10 @@ ModifiablePrimary:
             case "type": return (int) Tokens.TYPE;
             case "is": return (int) Tokens.IS;
             case "var": return (int) Tokens.VAR;
-
             case "routine": return (int) Tokens.ROUTINE;
-            case "integer": return (int) Tokens.INTEGER;
-            case "real": return (int) Tokens.REAL;
-            case "boolean": return (int) Tokens.BOOLEAN;
+            case "int": return (int) Tokens.TYPE_INT;
+            case "real": return (int) Tokens.TYPE_REAL;
+            case "boolean": return (int) Tokens.TYPE_BOOL;
             case "record": return (int) Tokens.RECORD;
             case "array": return (int) Tokens.ARRAY;
             case "while": return (int) Tokens.WHILE;
@@ -539,6 +544,16 @@ ModifiablePrimary:
                 yylval = new AST_Node("KEYWORD", true);
                 yylval.is_token = true;
                 yylval.identifier_string = str;
+                if (keyword_token == (int) Tokens.TYPE_INT) {
+                  yylval.return_type = "int";
+                }
+                if (keyword_token == (int) Tokens.TYPE_REAL) {
+                  yylval.return_type = "real";
+                }
+                if (keyword_token == (int) Tokens.TYPE_BOOL) {
+                  yylval.return_type = "bool";
+                }
+                  
                 return keyword_token;
               }
                   
