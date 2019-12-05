@@ -16,6 +16,20 @@ routine castToInt(a:float):int is
 end
 
 routine main():Int is
+    var aaa:int
+    var bol:boolean
+    var rec1: record var el1:int is 3 var el2:int is 5 end
+    var ar1: array[2] int
+    var ar2: array[3] int
+    if bool is true then
+        aaa := ar1
+    else
+        aaa := ar2
+    while bool is false loop
+        var q:int is 1
+        var w:int is 2
+        q := w + w
+    end
     var a:int
     var i1:int
     var i2:int is 2
