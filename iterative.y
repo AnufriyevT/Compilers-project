@@ -155,7 +155,7 @@ Statement:
 | WhileLoop {$$ = $1;}
 | ForLoop {$$ = $1;}
 | IfStatement {$$ = $1;}
-| RETURN ReturnStatement {$$ = $1;}
+| ReturnStatement {$$ = $1;}
 ;
 
 ReturnStatement:
@@ -518,7 +518,7 @@ ModifiablePrimary:
                   yylval = new AST_Node("INTEGER", true);
                   yylval.ival = i;
                   yylval.is_token = true;
-                  yylval.return_type = "real";
+                  yylval.return_type = "integer";
                   return (int) Tokens.INTEGER;
                 }
               }

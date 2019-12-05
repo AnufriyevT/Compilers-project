@@ -39,6 +39,7 @@ namespace Compiler
             string spaces_string = string.Concat(Enumerable.Repeat(" ", spaces));
             Console.Write("{0}", spaces_string);
             if (this.is_token) {
+
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
                 if (this.name == "INTEGER") {
                     Console.Write("<{0}:{1}> ", this.return_type, this.ival);
@@ -52,13 +53,15 @@ namespace Compiler
                 if (this.name == "IDENTIFIER") {
                     Console.Write("{0}", this.identifier_string);
                 }
+                if (this.name == "OPERATION") {
+                    Console.Write("{0}", this.identifier_string);
+                }
                 Console.ResetColor();
                 Console.WriteLine(" [{0}] ", this.name);
             }
-            else Console.WriteLine("NODE: [{0}]", this.name);
-
-            if (!this.is_token)
-            {
+            else {
+                Console.WriteLine("NODE: [{0}]", this.name);
+                // Console.WriteLine("|");
                 foreach (AST_Node child in this.children)
                 {
                     if (child != null) {
