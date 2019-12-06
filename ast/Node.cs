@@ -97,42 +97,23 @@ namespace Compiler
 
         private static string translate_expression(AST_Node node)
         {
-            if (node.is_token) {
-                return "kek";
-            } else {
-                AST_Node node_child_1 = node.children[0];
-                return "kek-before" + translate_expression(node_child_1) + "kek-after";
-            }
-        }
+            if (string.Compare(node.name, "VariableDeclaration")){
+                if (string.Compare(node.children[3].identifier_string, ":") && node.children[3].Length){
+                    AST_Node new_node = ;
+                }
 
-        private static string translate_integer(AST_Node node)
-        {
-            if (node.is_token) {
-                return "kek";
-            } else {
-                AST_Node node_child_1 = node.children[0];
-                return "kek-before" + translate_expression(node_child_1) + "kek-after";
             }
-        }
 
-        private static string translate_real(AST_Node node)
-        {
-            if (node.is_token) {
-                return "kek";
-            } else {
-                AST_Node node_child_1 = node.children[0];
-                return "kek-before" + translate_expression(node_child_1) + "kek-after";
+            if (string.Compare(node.name, "VariableDeclaration")){
+                if (string.Compare(node.children[5].name, "IS") && string.Compare(node.children[6].name, "Expression")){
+                    AST_Node new_node = node.children[6];
+                    int val = Int32.Parse(new_node.children[0].children[0].children[1].children[1].children[0].children[0]);
+                    
+                }
             }
-        }
 
-        private static string translate_operation(AST_Node node)
-        {
-            if (node.is_token) {
-                return "kek";
-            } else {
-                AST_Node node_child_1 = node.children[0];
-                return "kek-before" + translate_expression(node_child_1) + "kek-after";
-            }
+            
+
         }
     }
 }

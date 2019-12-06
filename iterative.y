@@ -1,5 +1,5 @@
 ﻿﻿%{
-    
+  public  AST_Node root;
 %}
 %namespace Compiler
 %start Program //starting token rule is 'Program', strict declaration
@@ -67,7 +67,7 @@
 
 %%
 Program: 
-  SimpleDeclaration Program {$$ = new AST_Node("Program", false, $1, $2); $$.print_self(0); $$.BuildSymbolTable();}
+  SimpleDeclaration Program {$$ = new AST_Node("Program", false, $1, $2); $$.print_self(0); $$.BuildSymbolTable(); root=$$;}
 | RoutineDeclaration Program {$$ = new AST_Node("Program", false, $1, $2); $$.print_self(0);}
 | {$$ = new AST_Node("Program", false); $$.print_self(0);}
 ;
@@ -211,7 +211,7 @@ IfStatement:
 ; 
 
 ElseBody:
-	ELSE Body ElseBody {$$ = new AST_Node("ElseBody", false, $1, $2, $3);}
+	ElseBody ELSE Body {$$ = new AST_Node("ElseBody", false, $1, $2, $3);}
 | {$$ = null;}
 ;
 
