@@ -1,5 +1,5 @@
 ﻿﻿%{
-  public  AST_Node root;
+    AST_Node root = null;
 %}
 %namespace Compiler
 %start Program //starting token rule is 'Program', strict declaration
@@ -64,18 +64,21 @@
 %token CLOSE_SQUARE_BRACKET
 %token RETURN
 
-
 %%
 Program: 
-  SimpleDeclaration Program {$$ = new AST_Node("Program", false, $1, $2); $$.print_self(0); $$.BuildSymbolTable(); root=$$;}
-| RoutineDeclaration Program {$$ = new AST_Node("Program", false, $1, $2); $$.print_self(0);}
-| {$$ = new AST_Node("Program", false); $$.print_self(0);}
+ {
+   $$ = new AST_Node("Program", false);
+  root = $$;
+  }
+| Program SimpleDeclaration  {$1.add_child($2);}
+| Program RoutineDeclaration   {$1.add_child($2);}
 ;
 
 
+
 SimpleDeclaration:
-  VariableDeclaration {$$ = new AST_Node("SimpleDeclaration", false, $1);}
-| TypeDeclaration {$$ = new AST_Node("SimpleDeclaration", false, $1);}
+  VariableDeclaration {$$ = $1;}
+| TypeDeclaration {$$ = $1;}
 ;
 
 // SymbolTAble push
@@ -96,14 +99,16 @@ TypeDeclaration:
 RoutineDeclaration: 
   ROUTINE Identifier OPEN_PAREN RoutineParameters CLOSE_PAREN RoutineReturnType IS Body END
   {
-    $$ = new AST_Node("RoutineDeclaration", false, $1, $2, $3, $4, $5, $6, $7, $8, $9); 
-    $$.return_type = $6.return_type; $$.identifier_string = $2.identifier_string;
+    $$ = new AST_Node("RoutineDeclaration", $4.children);
+    $$.identifier_string = "Routine_"+ $2.identifier_string;
+    $$.return_type = $6.return_type;
+    $$.add_child($8);
   }
 ;
  
 RoutineParameters:
-  Parameters {$$ = new AST_Node("RoutineParameters", false, $1);}
-| {$$ = null;}
+  Parameters {$$ = $1;}
+| {$$ = new AST_Node("Parameters", false);}
 ;
 
 // TypeTable check
@@ -114,8 +119,10 @@ RoutineReturnType:
 
 // POSSIBLE CONFLICT
 Parameters: 
-  ParameterDeclaration COMMA Parameters {$$ = new AST_Node("Parameters", false, $1, $2, $3);}
-| ParameterDeclaration {$$ = $1;}
+  ParameterDeclaration COMMA Parameters {
+    $3.add_child($1);
+  }
+| ParameterDeclaration {$$ = new AST_Node("Parameters", false, $1);}
 ;
 
 // NEW SCOPE SymbolTAble push
@@ -151,9 +158,9 @@ ArrayType:
 ;
 
 Body:
-  SimpleDeclaration Body {$$ = new AST_Node("Body", false, $1, $2);}
-| Statement Body {$$ = new AST_Node("Body", false, $1, $2);}
-| {$$ = null;}
+  {$$ = new AST_Node("Body", false);}
+| Body SimpleDeclaration  {$1.add_child($2);}
+| Body Statement {$1.add_child($2);} 
 ;
 
 Statement: 
@@ -175,8 +182,9 @@ Assignment:
 ;
 
 RoutineCall: 
-  Identifier {$$ = new AST_Node("RoutineCall", false, $1);}
-| Identifier OPEN_PAREN Expression ArgsList CLOSE_PAREN {$$ = new AST_Node("RoutineCall", false, $1, $2, $3, $4, $5);}
+  // WTF this is not call
+  // Identifier {$$ = new AST_Node("RoutineCall", false, $1);}
+  Identifier OPEN_PAREN Expression ArgsList CLOSE_PAREN {$$ = new AST_Node("RoutineCall", false, $1, $2, $3, $4, $5); $$.identifier_string = $1.identifier_string; $$.return_type = "-";}
 ;
 
 ArgsList:
@@ -185,11 +193,11 @@ ArgsList:
 ;
 
 WhileLoop: 
-  WHILE Expression LOOP Body END {$$ = new AST_Node("WhileLoop", false, $1, $2, $3, $4, $5);}
+  WHILE Expression LOOP Body END {$$ = new AST_Node("WhileLoop", false, $1, $2, $3, $4, $5); $$.return_type = "-"; $$.identifier_string = SymbolTable.RandomString();}
 ;
 
 ForLoop:
-  FOR Identifier Range LOOP Body END {$$ = new AST_Node("ForLoop", false, $1, $2, $3, $4, $5, $6);}
+  FOR Identifier Range LOOP Body END {$$ = new AST_Node("ForLoop", false, $1, $2, $3, $4, $5, $6); $$.return_type = "-"; $$.identifier_string = SymbolTable.RandomString();}
 ;
 
 Return_value:
@@ -207,12 +215,16 @@ Reverse:
 ;
 
 IfStatement: 
-  IF Expression THEN Body ElseBody END {$$ = new AST_Node("IfStatement", false, $1, $2, $3, $4, $5, $6); $$.return_type = "-"; $$.identifier_string = SymbolTable.RandomString();}
+  IF Expression THEN Body ElseBody END {
+    $$ = new AST_Node("IfStatement", $5.children);
+    $4.return_type = "-"; $4.identifier_string = "IF_STATEMENT_" + SymbolTable.RandomString();
+    $$.add_child($4);
+  }
 ; 
 
 ElseBody:
-	ElseBody ELSE Body {$$ = new AST_Node("ElseBody", false, $1, $2, $3);}
-| {$$ = null;}
+	ELSE Body ElseBody {$3.add_child($2);}
+| {$$ = new AST_Node("ElseBody", false); $$.return_type = "-"; $$.identifier_string = SymbolTable.RandomString();}
 ;
 
 Expression: 
@@ -301,6 +313,10 @@ ModifiablePrimary:
         //parser.Trace = true;
         
         parser.Parse();
+
+        parser.root.print_self(0);
+        Console.WriteLine("SEMANTIC ANALYZER STARTS... ");
+        parser.root.BuildSymbolTable();
     }
 
     class Lexer: QUT.Gppg.AbstractScanner<Compiler.AST_Node, LexLocation>
@@ -423,7 +439,7 @@ ModifiablePrimary:
               if (ch == '0' && next != '.') {
               
                 string str = sb.ToString();
-                Console.WriteLine("INTEGER: {0}", str);
+                // Console.WriteLine("INTEGER: {0}", str);
                 yylval = new AST_Node("INTEGER", true);
                 yylval.ival = 0;
                 yylval.is_token = true;
@@ -453,7 +469,7 @@ ModifiablePrimary:
                     this.yyerror("Tvoi Real Govno {0}", str);
                     return (int) Tokens.error;
                   }
-                  Console.WriteLine("FLOAT: {0}", str);
+                  // Console.WriteLine("FLOAT: {0}", str);
                   return (int) Tokens.REAL;
               }
               //ch 1..9
@@ -479,7 +495,7 @@ ModifiablePrimary:
                     yylval.dval = Convert.ToDouble(str.Replace(".", ","));
                     yylval.is_token = true;
                     yylval.return_type = "real";
-                    Console.WriteLine("FLOAT: {0}", str);
+                    // Console.WriteLine("FLOAT: {0}", str);
                     return (int) Tokens.REAL;
                   }
                   catch (FormatException) {
@@ -494,7 +510,7 @@ ModifiablePrimary:
                     this.yyerror( "Illegal int number cant be converted to INTEGER", str );
                     return (int) Tokens.error;
                   }
-                  Console.WriteLine("INTEGER: {0}", i);
+                  // Console.WriteLine("INTEGER: {0}", i);
                   yylval = new AST_Node("INTEGER", true);
                   yylval.ival = i;
                   yylval.is_token = true;
@@ -515,7 +531,7 @@ ModifiablePrimary:
               string str = sb.ToString();
               int keyword_token = get_keyword(str);
               if (! (keyword_token == -1)) {
-                Console.WriteLine("KEYWORD: {0}", str);
+                // Console.WriteLine("KEYWORD: {0}", str);
                 yylval = new AST_Node("KEYWORD", true);
                 yylval.is_token = true;
                 yylval.identifier_string = str;
@@ -532,7 +548,7 @@ ModifiablePrimary:
                 return keyword_token;
               }
                   
-              Console.WriteLine("IDENTIFIER: {0}", str);
+              // Console.WriteLine("IDENTIFIER: {0}", str);
               yylval = new AST_Node("IDENTIFIER", true);
               yylval.is_token = true;
               yylval.identifier_string = str;
@@ -549,7 +565,7 @@ ModifiablePrimary:
                 sb.Append(next);
               }
               string str = sb.ToString();
-              Console.WriteLine("OPERATION: {0}", str);
+              // Console.WriteLine("OPERATION: {0}", str);
               yylval = new AST_Node("OPERATION", true);
               yylval.is_token = true;
               yylval.identifier_string = str;
@@ -557,8 +573,8 @@ ModifiablePrimary:
             }
 
             
-            Console.WriteLine("NAN: {0}", ch);
-            return (int) Tokens.Identifier;
+            // Console.WriteLine("NAN: {0}", ch);
+            return (int) Tokens.error;
         }
     
         public override void yyerror(string format, params object[] args)

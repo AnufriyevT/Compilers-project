@@ -8,6 +8,9 @@ routine funcIntIncrement(a:Int):int is
 end
 
 routine funcFloatIncrement(a:float):float is
+    var bol:boolean
+    var bol2:boolean
+    var bol3:boolean
     return a + 1
 end
 

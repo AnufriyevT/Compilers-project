@@ -18,9 +18,9 @@ namespace Compiler
         public double dval = 0.0;
         public string identifier_string;
         private static string filepath = "llvm_input.llvm";
-        public static SymbolTable symbolicTableRoot = new SymbolTable(null);
-        public static SymbolTable currentScope = symbolicTableRoot;
-
+        
+        public static SymbolTable[] currentScope = {new SymbolTable(null)};
+        public static int currentDepth = 0;
         public AST_Node(string name, bool is_token, params AST_Node[] children)
         {
             this.name = name;
@@ -28,6 +28,18 @@ namespace Compiler
             this.is_token = is_token;
             this.return_type = null;
             this.identifier_string = null;
+        }
+        public AST_Node(string name, AST_Node[] children)
+        {
+            this.name = name;
+            this.children = children;
+            this.is_token = false;
+            this.return_type = null;
+            this.identifier_string = null;
+        }
+        public void add_child(AST_Node node) {
+            Array.Resize(ref this.children, this.children.Length + 1);
+            this.children[this.children.Length - 1] = node;
         }
         public void to_LLVM()
         {
@@ -39,8 +51,7 @@ namespace Compiler
         }
         public void BuildSymbolTable() {
             SymbolTable.handleNodeIn(this);
-            foreach (AST_Node child in this.children)
-                {
+            foreach (AST_Node child in this.children) {
                     if (child != null) {
                         child.BuildSymbolTable();
                     }
