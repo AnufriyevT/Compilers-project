@@ -119,7 +119,7 @@ namespace Compiler
                 Console.Write(" <" + AST_Node.currentScope[0].id + "> ");
                 entry.print();
                 AST_Node.currentScope[0] = new_table;
-                AST_Node.currentDepth++;
+                AST_Node.currentDepth = AST_Node.currentDepth + 2;
                 spaces_string = string.Concat(Enumerable.Repeat(" ", AST_Node.currentDepth));
                 Console.Write("{0}", spaces_string);
                 Console.Write("CREATED NEW SCOPE   :");
@@ -138,7 +138,7 @@ namespace Compiler
                     Console.WriteLine(" <" + AST_Node.currentScope[0].id + "> ");
                     Console.ResetColor();
                     AST_Node.currentScope[0] = AST_Node.currentScope[0].parent;
-                    AST_Node.currentDepth--;
+                    AST_Node.currentDepth = AST_Node.currentDepth - 2;
                 }
             }
         }

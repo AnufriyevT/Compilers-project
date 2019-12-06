@@ -239,8 +239,8 @@ logic_operation:
     ;
 
 Relation: 
-  Simple {$$ = new AST_Node("Relation", false, $1);}
-| Simple compare_sign Simple {$$ = new AST_Node("Relation", false, $1, $2, $3);}
+  Simple {$$ = $1;}
+| Simple compare_sign Simple {$$ = new AST_Node("Operation", false, $1, $2, $3);}
 ;
 
 // NOT AN AST_Node, JUST GROUP OF SYMBOLS 
@@ -255,7 +255,7 @@ compare_sign:
 
 
 Simple: 
-  Factor mult_sign Simple {$$ = new AST_Node("Simple", false, $1, $2, $3);}
+  Factor mult_sign Simple {$$ = new AST_Node("Operation", false, $1, $2, $3);}
 | Factor {$$ = $1;}
 ;
 
@@ -266,7 +266,7 @@ mult_sign:
 ;
 
 Factor: 
-  Summand sum_sign Factor {$$ = new AST_Node("Factor", false, $1, $2, $3);}
+  Summand sum_sign Factor {$$ = new AST_Node("Operation", false, $1, $2, $3);}
 | Summand {$$ = $1;}
 ;
 
@@ -276,8 +276,8 @@ sum_sign:
 ;
 
 Summand: 
-  Primary {$$ = new AST_Node("Summand", false, $1);}
-| OPEN_PAREN Expression CLOSE_PAREN {$$ = new AST_Node("Summand", false, $1, $2, $3);}
+  Primary {$$ = new AST_Node("Operation", false, $1);}
+| OPEN_PAREN Expression CLOSE_PAREN {$$ = new AST_Node("Operation", false, $1, $2, $3);}
 ;
 
 // Primary is just a grouping
@@ -317,6 +317,8 @@ ModifiablePrimary:
         parser.root.print_self(0);
         Console.WriteLine("SEMANTIC ANALYZER STARTS... ");
         parser.root.BuildSymbolTable();
+        Console.WriteLine("LLVM BITCODE TEST TRANSLATION");
+        parser.root.print_llvm();
     }
 
     class Lexer: QUT.Gppg.AbstractScanner<Compiler.AST_Node, LexLocation>
