@@ -17,8 +17,6 @@ namespace Compiler
         public int ival = 0;
         public double dval = 0.0;
         public string identifier_string;
-        public static SymbolTable global_scope = null;
-
         private static string filepath = "llvm_input.llvm";
         public static SymbolTable symbolicTableRoot = new SymbolTable(null);
         public static SymbolTable currentScope = symbolicTableRoot;

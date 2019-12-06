@@ -27,6 +27,7 @@
 %token ELLIPSIS
 %token FOR_EACH
 %token FOR
+%token IN
 %token LESS_OR_EQUAL
 %token IntegralLiteral
 %token RealLiteral
@@ -311,40 +312,10 @@ ModifiablePrimary:
              this.reader = reader;
          }
 
-         public bool is_keyword(string str)
-         {
-          switch (str) {
-            case "type": return true;
-            case "is": return true;
-            case "var": return true;
-            case "routine": return true;
-            case "int": return true;
-            case "real": return true;
-            case "boolean": return true;
-            case "record": return true;
-            case "array": return true;
-            case "while": return true;
-            case "for": return true;
-            case "loop": return true;
-            case "foreach": return true;
-            case "if": return true;
-            case "then": return true;
-            case "else": return true;
-            case "end": return true;
-            case "and": return true;
-            case "or": return true;
-            case "xor": return true;
-            case "not": return true;
-            case "true": return true;
-            case "false": return true;
-
-            default: return false;
-          }
-         }
-
          public int get_keyword(string str)
          {
           switch (str) {
+            case "in": return (int) Tokens.IN;
             case "type": return (int) Tokens.TYPE;
             case "is": return (int) Tokens.IS;
             case "var": return (int) Tokens.VAR;
@@ -369,6 +340,7 @@ ModifiablePrimary:
             case "true": return (int) Tokens.TRUE;
             case "false": return (int) Tokens.FALSE;
             case "return": return (int) Tokens.RETURN; //wtf
+            case "reverse": return (int) Tokens.REVERSE; //wtf
             //case "func": return (int) Tokens.FUNC
             default: return -1;
           }
@@ -376,6 +348,7 @@ ModifiablePrimary:
 
          public bool is_first_op_symbol(char ch) {
           switch (ch) {
+            case '.': return true;
             case '+': return true;
             case '-': return true;
             case '*': return true;
@@ -395,6 +368,7 @@ ModifiablePrimary:
  
          public bool is_second_op_symbol(char ch) {
           switch (ch) {
+            case '.': return true;
             case '=': return true;
             default: return false;
           }
@@ -420,6 +394,7 @@ ModifiablePrimary:
             case ">=": return (int) Tokens.GREATER_OR_EQUAL;
             case "<=": return (int) Tokens.LESS_OR_EQUAL;
             case "/=": return (int) Tokens.NOT_EQUAL;
+            case "..": return (int) Tokens.ELLIPSIS;
             default: return -1;
           }
          }

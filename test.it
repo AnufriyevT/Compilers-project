@@ -23,12 +23,12 @@ routine main():Int is
     var ar1: array[2] int
     var ar2: array[3] int
     
-    if bool is true then
+    if bool then
         aaa := ar1
     else
         aaa := ar2
         
-    while bool is false loop
+    while bool loop
         var q:int is 1
         var w:int is 2
         q := w + w
