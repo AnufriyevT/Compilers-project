@@ -11,10 +11,13 @@ namespace Compiler
 
         public SymbolTable parent;
 
+        public Guid id;
+
         public SymbolTable(SymbolTable parent)
         {
             this.entries = new Dictionary<string, SymbolEntry>();
             this.parent = parent;
+            this.id = Guid.NewGuid();
         }
 
         // member function or method
@@ -93,6 +96,7 @@ namespace Compiler
             {
                 //Routine Return Type
                 SymbolEntry entry = new SymbolEntry(node.identifier_string, node.name, node.return_type); 
+                Console.Write("<" + AST_Node.currentScope.id + ">  ");
                 entry.print("ADD SELF TO SCOPE: ");
                 AST_Node.currentScope.insert(entry);
             }
@@ -102,6 +106,7 @@ namespace Compiler
                 SymbolTable new_table = new SymbolTable(AST_Node.currentScope);
                 SymbolEntry entry = new SymbolEntry(node.identifier_string, node.name, node.return_type); 
                 entry.pointer = new_table;
+                Console.Write("<" + AST_Node.currentScope.id + ">  ");
                 entry.print("ADD NEW SCOPE:     ");
                 AST_Node.currentScope = new_table;
             }
